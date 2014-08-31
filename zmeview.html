@@ -1,0 +1,71 @@
+<!doctype html>
+<!--
+  This file is part of the application
+  zmeview: Viewer for image sequences captured by ZoneMinder
+  Author: Matthew Rafferty
+  Version: 1.0
+  Date: August 2014
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Surveillance Event Viewer</title>
+
+  <link rel="stylesheet" href="lib/jquery-ui-1.10.2.custom.min.css" />
+  <link rel="stylesheet" href="./zmeview.css">
+</head>
+<body>
+  <div id="zoomGroup">
+<!-- TODO: have the Zoomer module create all this, given the container -->
+    <label>Zoom:</label>
+    <div id="zoomCtrlBox">
+      <div id="zoomCtrl"></div>
+      <div id="zoomTickLbls">
+        <div style="left: -15px;">1x</div>
+        <div style="left: 35px;">1.5x</div>
+        <div style="left: 85px;">2x</div>
+        <div style="left: 135px;">2.5x</div>
+        <div style="left: 185px;">3x</div>
+      </div>
+    </div>
+  </div>
+  <div id="vboxgrp">
+    <div id="viewerbox">
+<!-- TODO: have the Viewer module create all this, given the container -->
+      <img id="zmframe" src="">
+      <div id="ctrlbox">
+        <input type="button" id="prevBtn" value="&lt;+" title="Previous event" disabled />
+        <input type="button" id="fastRevBtn" value="&lt;&lt;" title="Fast Reverse" disabled />
+        <input type="button" id="stepRevBtn" value="&lt;" title="Step Back" disabled />
+        <input type="button" id="pauseBtn" value="||" title="Pause" disabled />
+        <input type="button" id="playBtn" value="|&gt;" title="Play" disabled />
+        <input type="button" id="stepFwdBtn" value="&gt;" title="Step Forward" disabled />
+        <input type="button" id="fastFwdBtn" value="&gt;&gt;" title="Fast Forward" disabled />
+        <input type="button" id="nextBtn" value="+&gt;" title="Next event" disabled />
+      </div>
+      <div id="statusbox">
+          <label>Event #</label>
+          <input type="text" id="eventnum" size="6" readonly="readonly" />
+          <label class="bumped">Frame #</label>
+          <input type="text" id="framenum" size="3" readonly="readonly" />
+          <label class="bumped">Speed:</label>
+          <input type="text" id="speedval" size="1" readonly="readonly" />x
+      </div>
+      <!-- TODO:
+        * a modifiable textbox for the user to associate notes with an event
+          (functionality to be developed later...)
+      -->
+    </div>
+    <div id="zmev_col2">
+      <div id="evtlisthead"></div>
+      <div id="evtlistbox"></div>
+    </div>
+  </div>
+
+  <script type='text/javascript' src='lib/jquery-1.9.1.min.js'></script>
+  <script type='text/javascript' src='lib/jquery-ui-1.10.2.custom.min.js'></script>
+  <script type='text/javascript' src='./zmeview.js'></script>
+  <script type='text/javascript' src='./zmevents.js'></script>
+
+</body>
+</html>

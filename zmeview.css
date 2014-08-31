@@ -1,0 +1,133 @@
+/*
+  This file is part of the application
+  zmeview: Viewer for image sequences captured by ZoneMinder
+  Author: Matthew Rafferty
+  Version: 1.0
+  Date: August 2014
+*/
+
+/* Reset */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Specific to details of our page */
+body {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+/* --- Left column ----------- */
+#zoomGroup {
+  width: 320px;
+  padding-top: 8px;
+}
+  #zoomGroup > label {
+    vertical-align: top;
+    margin-left: 8px;
+  }
+  #zoomCtrlBox {
+    display: inline-block;
+    position: relative;
+    margin-left: 10px;
+    margin-bottom: 24px;
+  }
+    #zoomCtrlBox > div {
+      width: 200px;
+    }
+    #zoomTickLbls > * {
+      display: inline-block;
+      position: absolute;
+      width: 30px;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+#vboxgrp {
+  /*overflow: auto;*/ /* Only want this when the app is packaged as a widget! */
+  white-space: nowrap;
+}
+#viewerbox {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 8px;
+  border: 1px solid #888;
+}
+  #zmframe {
+    display: inline-block;
+    min-width: 320px;
+    min-height: 240px;
+    background-color: #888888;
+    /* Only while page is still loading: */
+    background-image: url(./lib/images/animated-overlay.gif);
+  }
+  #ctrlbox {
+    font-size: 10px;
+    margin-top: 3px;
+    margin-bottom: 2px;
+    text-align: center;
+  }
+    #ctrlbox input {
+      height: 20px;
+      width: 28px;
+      padding-bottom: 3px;
+      margin: 0 3px;
+      font: inherit;
+    }
+    #ctrlbox input[disabled=disabled] {
+      color: #aaaaaa;
+    }
+    #statusbox {
+      margin-top: 10px;
+      text-align: center;
+    }
+      #statusbox input {
+        font-size: 12px;
+      }
+      .bumped {
+        margin-left: 4px;
+      }
+/* --- End of Left column ---- */
+
+/* --- Right column ---------- */
+#zmev_col2 {
+  display: inline-block;
+  position: relative;
+  height: inherit;
+  white-space: normal;
+}
+  #evtlisthead {
+    position: absolute;
+    top: -32pt;
+    right: 0;
+    width: 32em;
+    text-align: center;
+    padding: 4px;
+    border: 1px solid #888;
+    border-bottom: none;
+  }
+    #evtlisthead input[type="text"] {
+      font-size: inherit;
+      width: 26em;
+    }
+  #evtlistbox {
+    width: 32em;
+    height: inherit;
+    overflow: auto;
+    border: 1px solid #888;
+  }
+    #evtlistbox > a {
+      display: inline-block;
+      width: 5em;
+      text-decoration: none;
+      text-align: right; /* because the text is a number */
+    }
+    #evtlistbox > a:hover {
+      color: #880000;
+      background-color: #ffff00;
+      text-decoration: underline;
+    }
+/* --- End of Right column --- */
+
