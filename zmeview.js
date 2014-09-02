@@ -12,7 +12,7 @@ var zmEvents = {}; // Namespace for this app
 _debug = (function(){
 
   var
-    DEBUGMODE = false,
+    DEBUGMODE = true,
     // Debug levels
     INFO = 0,
     WARN = 1,
@@ -720,16 +720,28 @@ zmEvents.LinksMaker = (function(){
   init = function(boxId) {
     var
       i,
-      evtList = zmEvents.eventsSrc.list,
-      evtCount = evtList.length,
-      evtRoot = zmEvents.eventsSrc.root,
+      evtList,
+      evtCount,
+      evtRoot,
       datetime,
       df,
       tf,
       update,
-      aList = new Array(evtCount),
+      aList,
       $listBox = $("#" + boxId);
 
+    try {
+      evtList = zmEvents.eventsSrc.list;
+    } catch (exc) {
+      $listBox.html(
+        "<h3>No event data available.</h3>" +
+        "<p>Please see <code>README</code> file for usage instructions.</p>"
+      );
+      return;
+    }
+    evtCount = evtList.length;
+    aList = new Array(evtCount);
+    evtRoot = zmEvents.eventsSrc.root;
     if ("file:///" == evtRoot.substr(0,8)) {
       evtRoot = evtRoot.substr(8);
     }
@@ -764,6 +776,7 @@ zmEvents.LinksMaker = (function(){
 }());
 
 $(document).ready(function(){
+try {
   zmEvents.manageHeight = function() {
     $("#vboxgrp").height( $("#viewerbox").outerHeight(true) );
   };
@@ -773,5 +786,6 @@ $(document).ready(function(){
   zmEvents.Zoomer.init( "zoomCtrl", "zmframe", zmEvents.manageHeight );
   zmEvents.LinksMaker.init("evtlistbox");
   document.getElementById("zmframe").style.backgroundImage = "none";
+} catch (exc) { _debug.out(exc); }
 });
 
