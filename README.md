@@ -1,7 +1,7 @@
 zmeview
 =======
 
-Browser-based viewer for ZoneMinder image file sets. Otherwise free-standing.
+Offline browser-based viewer for ZoneMinder image file sets.
 
 This project allows the user to view "events" recorded from video input by
 ZoneMinder (the video surveillance package for Linux) through a web browser.
