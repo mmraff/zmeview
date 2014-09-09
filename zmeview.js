@@ -12,7 +12,7 @@ var zmEvents = {}; // Namespace for this app
 _debug = (function(){
 
   var
-    DEBUGMODE = true,
+    DEBUGMODE = false,
     // Debug levels
     INFO = 0,
     WARN = 1,
@@ -322,7 +322,7 @@ zmEvents.Viewer = (function(){
   next_frame = function() {
     var result = true;
     if (currFrame == lastFrame) {
-      console.warn("Attempt to advance past last frame!");
+      _debug.out("Attempt to advance past last frame!", _debug.WARN);
       return false;
     }
     currFrame++;
@@ -337,7 +337,7 @@ zmEvents.Viewer = (function(){
   prev_frame = function() {
     var result = true;
     if (0 == currFrame) {
-      console.warn("Attempt to backstep first frame!");
+      _debug.out("Attempt to backstep first frame!", _debug.WARN);
       return false;
     }
     currFrame--;
@@ -357,7 +357,7 @@ zmEvents.Viewer = (function(){
 
     if (0 < n ) {
       if (currFrame == lastFrame) {
-        console.warn("Attempt to jump past last frame!");
+        _debug.out("Attempt to jump past last frame!", _debug.WARN);
         return false;
       }
       if (lastFrame < currFrame + n) {
@@ -366,7 +366,7 @@ zmEvents.Viewer = (function(){
     }
     else if (n < 0) {
       if (0 == currFrame) {
-        console.warn("Attempt to reverse jump from first frame!");
+        _debug.out("Attempt to reverse jump from first frame!", _debug.WARN);
         return false;
       }
       if (currFrame + n < 1) {
