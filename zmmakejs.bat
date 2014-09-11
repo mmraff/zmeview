@@ -6,8 +6,8 @@
 :: by a JavaScript application.
 ::
 :: Author: Matthew Rafferty
-:: Version: 1.0
-:: Date: August 2014
+:: Version: 1.0.2
+:: Date: September 2014
 
 setlocal EnableDelayedExpansion
 set JSFILE=zmevents.js
@@ -105,8 +105,10 @@ for /f "usebackq" %%G in (`dir /b /a:d "%EVTROOT%" ^|findstr /r "!_re!$"`) do (
   <NUL (set/p _temp=.)
   set _lastfrm=
   call :getlastframe
-:: If we failed to find a last frame, there's something wrong with the
-:: contents of this directory, so we should skip it.
+
+REM :: If we failed to find a last frame, there's something wrong with the
+REM :: contents of this directory, so we should skip it.
+
   if defined _return (
     set _lastfrm=!_return!
     set "_item={ evtnum: ^"!_evtdir!^", lastframe: !_lastfrm! }"
@@ -124,7 +126,7 @@ for /f "usebackq" %%G in (`dir /b /a:d "%EVTROOT%" ^|findstr /r "!_re!$"`) do (
 )
 :: Are all dirs accounted for?
 if !_tested! LSS %_numdirs% (
-:: It's time to select dirs with longer name (next order-of-magnitude)
+REM :: It's time to select dirs with longer name (next order-of-magnitude)
   set "_re=!_re![0-9]"
   goto NEXTOOM
 )
@@ -151,11 +153,11 @@ setlocal
 for /f "usebackq" %%H in (
   `dir /b "%EVTROOT%"\!_evtdir! ^|findstr /n /r "^0*[1-9][0-9]*-capture.jpg$" ^|find /c ":"`
 ) do (
-:: Because of the tricky way we 'intuit' the last frame number above, we're
-:: obliged to check whether the corresponding image file really exists
-:: (consider case: 1 or more files could be missing from the directory...)
-:: ZoneMinder convention is to name frames with numeric prefix of at minimum
-:: three digits, which means pad with zero(s) if n < 100
+REM :: Because of the tricky way we 'intuit' the last frame number above, we're
+REM :: obliged to check whether the corresponding image file really exists
+REM :: (consider case: 1 or more files could be missing from the directory...)
+REM :: ZoneMinder convention is to name frames with numeric prefix of at minimum
+REM :: three digits, which means pad with zero(s) if n < 100
   set _prefix=%%H
   if %%H LSS 10 (set _prefix=00%%H) ^
   else if %%H LSS 100 (set _prefix=0%%H) 
