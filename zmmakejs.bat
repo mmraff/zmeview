@@ -6,7 +6,7 @@
 :: by a JavaScript application.
 ::
 :: Author: Matthew Rafferty
-:: Version: 1.0.2
+:: Version: 1.0.3
 :: Date: September 2014
 
 setlocal EnableDelayedExpansion
@@ -103,23 +103,31 @@ set "_re=^[1-9]"
 for /f "usebackq" %%G in (`dir /b /a:d "%EVTROOT%" ^|findstr /r "!_re!$"`) do (
   set _evtdir=%%G
   <NUL (set/p _temp=.)
-  set _lastfrm=
-  call :getlastframe
+  set _digits=
+  call :getSigDigits
 
-REM :: If we failed to find a last frame, there's something wrong with the
-REM :: contents of this directory, so we should skip it.
+REM :: If we failed to determine the count of significant digits, there's
+REM :: something wrong with the contents of this directory, so we skip it.
 
   if defined _return (
-    set _lastfrm=!_return!
-    set "_item={ evtnum: ^"!_evtdir!^", lastframe: !_lastfrm! }"
-    if defined _blk (set "_blk=!_blk!,!NL!    !_item!") ^
-    else (set "_blk=    !_item!")
-    set /a "_idx+=1"
-    set /a "_modtest=!_idx!%%_BLOCKSZ%"
-    if !_modtest! EQU 0 (
-      if %_BLOCKSZ% LSS !_idx! (set "_blk=,!NL!!_blk!")
-      <NUL (set/p _temp=!_blk!)>>%JSFILE%
-      set _blk=
+    set _digits=!_return!
+    set _lastfrm=
+    call :getlastframe
+
+REM :: If we failed to find a last frame, we skip the current directory.
+
+    if defined _return (
+      set _lastfrm=!_return!
+      set "_item={ evtnum: ^"!_evtdir!^", sigdigits: !_digits!, lastframe: !_lastfrm! }"
+      if defined _blk (set "_blk=!_blk!,!NL!    !_item!") ^
+      else (set "_blk=    !_item!")
+      set /a "_idx+=1"
+      set /a "_modtest=!_idx!%%_BLOCKSZ%"
+      if !_modtest! EQU 0 (
+        if %_BLOCKSZ% LSS !_idx! (set "_blk=,!NL!!_blk!")
+        <NUL (set/p _temp=!_blk!)>>%JSFILE%
+        set _blk=
+      )
     )
   )
   set /a "_tested+=1"
@@ -147,28 +155,50 @@ echo.
 echo Finished at %time%
 goto exit
 
+:getSigDigits
+set _return=
+setlocal
+for /f "usebackq" %%H in (
+  `dir /b "%EVTROOT%\!_evtdir!\*1-capture.jpg" ^|findstr /r "^0*1-"`
+) do (
+  set _tmp=%%H
+  set _tmp=!_tmp:-capture.jpg=!
+)
+if not defined _tmp (
+  endlocal
+  goto :eof
+)
+set /a "_count=0"
+:digitloop
+set _tmp=!_tmp:~1!
+set /a "_count+=1"
+if defined _tmp goto digitloop
+endlocal & set _return=%_count%
+goto :eof
+
 :getlastframe
 set _return=
 setlocal
 for /f "usebackq" %%H in (
   `dir /b "%EVTROOT%"\!_evtdir! ^|findstr /n /r "^0*[1-9][0-9]*-capture.jpg$" ^|find /c ":"`
 ) do (
-REM :: Because of the tricky way we 'intuit' the last frame number above, we're
-REM :: obliged to check whether the corresponding image file really exists
-REM :: (consider case: 1 or more files could be missing from the directory...)
-REM :: ZoneMinder convention is to name frames with numeric prefix of at minimum
-REM :: three digits, which means pad with zero(s) if n < 100
-  set _prefix=%%H
-  if %%H LSS 10 (set _prefix=00%%H) ^
-  else if %%H LSS 100 (set _prefix=0%%H) 
-  if exist "%EVTROOT%"\!_evtdir!\!_prefix!-capture.jpg (
-    endlocal & set _return=%%H
-    goto :eof
-  )
+  if "%%H"=="0" (endlocal & goto :eof)
+  set _fn=%%H
+)
+:: Because of the tricky way we 'intuit' the last frame number above, we're
+:: obliged to check whether the corresponding image file really exists
+:: (consider case: 1 or more files could be missing from the directory...).
+:: There is a ZM configuration option that adds some complexity to this:
+:: depending on the value of EVENT_IMAGE_DIGITS, we must expect a prefix of
+:: one or more zeroes on image filenames for frame number n < 10^(digits-1).
+for /f "usebackq" %%I in (
+  `dir /b "%EVTROOT%\!_evtdir!\*!_fn!-capture.jpg" ^|findstr /r "^0*!_fn!-"`
+) do (
+  endlocal & set "_return=%_fn%"
+  goto :eof
 )
 endlocal
 goto :eof
 
 :exit
 endlocal
-

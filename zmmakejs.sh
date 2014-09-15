@@ -11,8 +11,8 @@
 # are needed for this script.
 #
 # Author: Matthew Rafferty
-# Version: 1.0
-# Date: August 2014
+# Version: 1.0.3
+# Date: September 2014
 
 # The output file:
 JSFILE="$PWD/zmevents.js"
@@ -79,27 +79,30 @@ for evtdir in `ls -d [1-9]+([0-9]) |sort -n -`; do
   # If it's not a directory, then skip it:
   if [ ! -d $evtdir ]; then continue; fi
   # If we get here, $evtdir is probably an event directory.
-  # Go into it, and isolate the last frame number from the last JPG filename:
   cd $evtdir
-  frameNum=`ls *(0)[1-9]*([0-9])-capture.jpg |sort -n - |tail -1 - |grep -o "[1-9][0-9]*" -`
-  if [ -n "$frameNum" ]
-  then
-    evtlist[$idx]="{ evtnum: \"$evtdir\", lastframe: $frameNum }"
+  # To determine the minimum number of digits in an image filename prefix:
+  numprefix=`ls *(0)1-capture.jpg 2>/dev/null |grep -o "0*1" -`
+  if [ -z "$numprefix" ]; then
+    cd - > /dev/null
+    continue
+  fi
+  # Isolate the last frame number from the last JPG filename:
+  frameNum=`ls *(0)[1-9]*([0-9])-capture.jpg 2>/dev/null |sort -n - |tail -1 - |grep -o "[1-9][0-9]*" -`
+  if [ -n "$frameNum" ]; then
+    evtlist[$idx]="{ evtnum: \"$evtdir\", sigdigits: ${#numprefix}, lastframe: $frameNum }"
     idx+=1
   fi
   cd - > /dev/null
 done
 if [ $TURN_EXTGLOB_OFF -eq 1 ]; then shopt -u extglob; fi
 
-if [ $idx -eq 0 ]
-then
+if [ $idx -eq 0 ]; then
   echo; echo "No valid event directories found at given path!"
   exit 2
 fi
 
 # Wrangle the array items
-if [ $idx -gt 1 ]
-then
+if [ $idx -gt 1 ]; then
   allBut1st="$( printf ",\n    %s" "${evtlist[@]:1}" )"
 fi
 
