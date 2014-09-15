@@ -2,8 +2,8 @@
   This file is part of the application
   zmeview: Viewer for image sequences captured by ZoneMinder
   Author: Matthew Rafferty
-  Version: 1.0
-  Date: August 2014
+  Version: 1.0.3
+  Date: September 2014
 */
 
 var zmEvents = {}; // Namespace for this app
@@ -52,6 +52,7 @@ zmEvents.Viewer = (function(){
   var
     // MODULE 'CONSTANTS'
     TIMING = 1000/28, // (1000 ms)/(28 fps)
+    ZEROES = "00000000000000000000",
     // DVR conditions that determine button states
     INITIAL = 0,
     MOVING = 1,
@@ -62,6 +63,7 @@ zmEvents.Viewer = (function(){
     // MODULE VARS
     currIndex,
     currEvent,
+    minDigits,
     lastFrame,
     currFrame,
     currFilepath,   // Saved in case of error loading <img>
@@ -91,6 +93,9 @@ zmEvents.Viewer = (function(){
     TODO,
     abort_timers,
     swap_image,
+    swap_image_1d,
+    swap_image_2d,
+    swap_image_md,
     set_button_states,
     change_button_states,
     handle_img_error,
@@ -131,11 +136,38 @@ zmEvents.Viewer = (function(){
 
   // Change the currently displayed image by modifying the src attribute of the img tag.
   // It's assumed that the caller of this function has just modified currFrame.
-  swap_image = function() {
-    if (isNaN(currFrame)) { throw new Error("Still getting here?!"); }
-    var prefix = (currFrame < 10 ? "00" : (currFrame < 100 ? "0" : ""));
+  // Version 1: for EVENT_IMAGE_DIGITS == 1
+  swap_image_1d = function() {
+    currFilepath = [
+      zmEvents.eventsSrc.root, "/", currEvent, "/", currFrame, "-capture.jpg"
+    ].join('');
+    imgEl.src = currFilepath;
+    frmnumEl.value = currFrame;
+  };
+  // Version 2: for EVENT_IMAGE_DIGITS == 2
+  swap_image_2d = function() {
+    var prefix = currFrame < 10 ? "0" : "";
     currFilepath = [
       zmEvents.eventsSrc.root, "/", currEvent, "/", prefix, currFrame, "-capture.jpg"
+    ].join('');
+    imgEl.src = currFilepath;
+    frmnumEl.value = currFrame;
+  };
+  // Version 3: for EVENT_IMAGE_DIGITS > 2
+  swap_image_md = function() {
+    var digitStr = "" + currFrame,
+        prefix = "";
+
+    if (digitStr.length < minDigits) {
+      prefix = ZEROES.substr(0, minDigits - digitStr.length);
+
+      // Stress tests show that this alternative way takes a little longer,
+      // though it's guaranteed to handle *any* minDigits value > 2:
+      //prefix = (new Array(minDigits + 1 - digitStr.length)).join('0');
+    }
+
+    currFilepath = [
+      zmEvents.eventsSrc.root, "/", currEvent, "/", prefix, digitStr, "-capture.jpg"
     ].join('');
     imgEl.src = currFilepath;
     frmnumEl.value = currFrame;
@@ -285,6 +317,12 @@ zmEvents.Viewer = (function(){
     zmEvt = zmEvents.eventsSrc.list[eventIdx];
     currIndex = eventIdx;
     currEvent = zmEvt.evtnum;
+    minDigits = zmEvt.sigdigits;
+    switch (minDigits) {
+      case 1: swap_image = swap_image_1d; break;
+      case 2: swap_image = swap_image_2d; break;
+      default: swap_image = swap_image_md;
+    }
     lastFrame = zmEvt.lastframe;
     currFrame = inReverse ? lastFrame : 1;
     evtnumEl.value = currEvent;
