@@ -2,7 +2,7 @@
   This file is part of the application
   zmeview: Viewer for image sequences captured by ZoneMinder
   Author: Matthew Rafferty
-  Version: 1.0.3
+  Version: 1.1
   Date: September 2014
 */
 
@@ -51,8 +51,10 @@ zmEvents.Viewer = (function(){
 
   var
     // MODULE 'CONSTANTS'
-    TIMING = 1000/28, // (1000 ms)/(28 fps)
     ZEROES = "00000000000000000000",
+    NOM_RATE = 28,          // Nominal frame rate - user can change
+    TIMING = 1000/NOM_RATE, // (1000 ms)/(NOM_RATE fps)
+    FRSPIN_JID = "#fr_spinner",
     // DVR conditions that determine button states
     INITIAL = 0,
     MOVING = 1,
@@ -68,11 +70,12 @@ zmEvents.Viewer = (function(){
     currFrame,
     currFilepath,   // Saved in case of error loading <img>
     currSpeed = 1,
+    timing,
     lastChange,     // The # of frames (and direction) of the last attempt to update the image
                     // (for use by error handler)
     intId, // setInterval Id, for use by clearInterval()
     tmId,  // setTimeout Id, """; needed by next_event() and prev_event() in some cases
-    
+
     imgEl,
     evtnumEl,
     frmnumEl,
@@ -127,6 +130,11 @@ zmEvents.Viewer = (function(){
     if (intId) {
       clearInterval(intId);
       intId = 0;
+      // Each occurrence of setInterval() used the current timing, which is
+      // set by the framerate spinner. Just to make it clear to the user that
+      // we can't change the framerate while the video is in motion, we
+      // disabled the spinner before each setInterval(). Re-enable now:
+      $(FRSPIN_JID).spinner("enable");
     }
     if (tmId) {
       clearTimeout(tmId);
@@ -437,10 +445,12 @@ zmEvents.Viewer = (function(){
         clearInterval(intId);
         intId = 0;
         change_button_states(MOVING, ENDED);
+        $(FRSPIN_JID).spinner("enable");
       }
     };
 
-    intId = setInterval(action, TIMING);
+    $(FRSPIN_JID).spinner("disable");
+    intId = setInterval(action, timing);
     change_button_states(currFrame == 1 ? REWOUND : PAUSED, MOVING);
     controls.playBtn.disabled = true;
   };
@@ -496,12 +506,14 @@ zmEvents.Viewer = (function(){
         intId = 0;
         change_button_states(MOVING, ENDED);
         controls.playBtn.disabled = true;
+        $(FRSPIN_JID).spinner("enable");
       }
     };
     if (fromState != MOVING) {
       change_button_states(fromState, MOVING);
     }
-    intId = setInterval(action, TIMING);
+    $(FRSPIN_JID).spinner("disable");
+    intId = setInterval(action, timing);
   };
 
   fast_reverse = function() {
@@ -536,12 +548,14 @@ zmEvents.Viewer = (function(){
         clearInterval(intId);
         intId = 0;
         change_button_states(MOVING, REWOUND);
+        $(FRSPIN_JID).spinner("enable");
       }
     };
     if (fromState != MOVING) {
       change_button_states(fromState, MOVING);
     }
-    intId = setInterval(action, TIMING);
+    $(FRSPIN_JID).spinner("disable");
+    intId = setInterval(action, timing);
   };
 
   pause = function() {
@@ -577,7 +591,7 @@ zmEvents.Viewer = (function(){
           step_forward();
           fast_forward();
         },
-        TIMING
+        timing
       );
     }
     else {
@@ -602,7 +616,7 @@ zmEvents.Viewer = (function(){
             step_forward();
             fast_forward();
           },
-          TIMING
+          timing
         );
       }
       else {
@@ -617,7 +631,7 @@ zmEvents.Viewer = (function(){
           step_reverse();
           fast_reverse();
         },
-        TIMING
+        timing
       );
     }
   };
@@ -664,6 +678,17 @@ zmEvents.Viewer = (function(){
     evtnumEl.value = "";
     frmnumEl.value = "";
     speedvalEl.value = "";
+
+    timing = 1000/NOM_RATE; // (1000 ms)/(NOM_RATE fps)
+    // Base framerate spinner control
+    $(FRSPIN_JID).spinner({
+      min: 5,
+      max: 40,
+      stop: function(evt, ui) {
+        timing = Math.round(1000/this.value);
+      }
+    })
+    .spinner("value", NOM_RATE);
   };
   
   play_event = function(evtIndex) {

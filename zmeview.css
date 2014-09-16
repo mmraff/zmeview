@@ -2,8 +2,8 @@
   This file is part of the application
   zmeview: Viewer for image sequences captured by ZoneMinder
   Author: Matthew Rafferty
-  Version: 1.0
-  Date: August 2014
+  Version: 1.1
+  Date: September 2014
 */
 
 /* Reset */
@@ -20,19 +20,22 @@ body {
 }
 
 /* --- Left column ----------- */
-#zoomGroup {
+#auxCtlGroup {
   width: 320px;
-  padding-top: 8px;
+  margin-bottom: 12px;
 }
-  #zoomGroup > label {
+  #auxCtlGroup > div {
+    margin-bottom: 12px;
+  }
+  #auxCtlGroup label {
+    margin-right: 10px;
+  }
+  #auxCtlGroup > label {
     vertical-align: top;
-    margin-left: 8px;
   }
   #zoomCtrlBox {
     display: inline-block;
     position: relative;
-    margin-left: 10px;
-    margin-bottom: 24px;
   }
     #zoomCtrlBox > div {
       width: 200px;
