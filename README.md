@@ -15,8 +15,6 @@ is also a discrete-stepped slider control to change the size of the viewport.
 To the right of the viewport and controls is a list of available event items,
 each of which can be clicked to play.
 
-Discuss at http://darksideofthedualboot.blogspot.com/2014/09/project-z.html
-
 ##Usage
 These instructions assume that you're working from the command line on the
 target computer.
